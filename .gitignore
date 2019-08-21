@@ -1,0 +1,10 @@
+.idea/
+.DS_Store
+*.iml
+*.cache
+*.class
+target/
+*.log
+logs/
+config/secrets/
+pharbers_config/secrets/
