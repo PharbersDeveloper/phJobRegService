@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>job build</title>
+    <script src="https://cdn.bootcss.com/vue/2.2.2/vue.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div>
+    <p>job</p>
+</div>
+<div id="form">
+    <form id="vaccine" action="/search" method="post" onsubmit="return false">
+        <!--<p>-->
+            <!--名称-->
+            <!--<select form="vaccine" name="name" v-model="vaccine.name">-->
+                <!--<option v-for="vaccine in operators">-->
+                <!--{{vaccine.name}}-->
+                <!--</option>-->
+            <!--</select>-->
+        <!--</p>-->
+        <p>
+          job name
+            <input type="text" name="batch" v-model="vaccine.batch"/>
+        </p>
+        <!--<p>-->
+            <!--000-->
+            <!--<select  form="vaccine" name="company" v-model="vaccine.company">-->
+                <!--<option v-for="vaccine in vaccines_company">-->
+                    <!--{{vaccine}}-->
+                <!--</option>-->
+            <!--</select>-->
+        <!--</p>-->
+    </form>
+    <p>
+        <button v-on:click="clickFrom">build</button>
+    </p>
+    <p>
+        actions
+    </p>
+    <div v-for="(action, index) in job.actions">
+        action
+            <select form="vaccine" name="name" v-model="job.actions[index]" @change='selectOperatorChange(index, name)'>
+                <option v-for="operator in operators">
+                {{operator.name}}
+                </option>
+            </select>
+        <p v-for="arg in operators[index].args">
+            arg:
+            {{arg}} =
+            <input type="text" name="batch" v-model="vaccine.batch"/>
+           <!--{{key}}-->
+            <!--<input type="text" name="operator_arg" v-model="job.actions[index].args[key]"/>-->
+        </p>
+    </div>
+</div>
+<script type="text/javascript">
+    function a () {
+        axios.get("http://localhost:8080/spark/job/operators").then(function (response) {
+            vue.operators = response.data;
+        });
+        // axios.get("/company").then(function (response) {
+        //     vue.vaccines_company = response.data;
+        // });
+    }
+    var vue = new Vue({
+        el:'#form',
+        data:{
+            job:{name:"", actions:[{}]},
+            jobBuild:{name:"", actions:[{}]},
+            operators:[{needPlugin:true,args:[],source:[],name:"test",msg:"add a column",classPath:"",plugin:{}}],
+            selectOperator: {},
+            vaccines_name:[],
+            vaccines_company:[],
+            vaccine:{name:"",company:"",batch:""},
+            vaccines:[{vaccineName:"",productionCompany:"",vaccineBatch:""}]
+        },
+        methods:{
+            clickFrom:function () {
+                axios.post("/search", {
+                    "name":vue.vaccine.name,
+                    "company":vue.vaccine.company,
+                    "batch":vue.vaccine.batch
+                }).then(function(response){
+                    vue.vaccines = response.data;
+                    vue.$set(vue.vaccines,0,vue.vaccines[0]);
+                });
+            },
+            addAction:function() {
+                this.job.action.push({});
+            },
+            delAction:function(index){
+                this.job.action.splice(index, 1);
+            },
+            selectOperatorChange: function(index, name){
+                vue.jobBuild.actions[index] = vue.operators.find((element) => (element.name == name))
+            }
+        }
+    });
+    a();
+</script>
+</body>
+</html>

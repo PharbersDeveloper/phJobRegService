@@ -1,6 +1,8 @@
 package com.pharbers.spark.driver.service.services
 
-import com.pharbers.spark.driver.service.model.JobVO
+import com.pharbers.ipaas.data.driver.api.model.Job
+import com.pharbers.spark.driver.service.model.{JobVO, OperatorVO, PluginVO}
+import com.pharbers.util.log.PhLogable
 import org.springframework.stereotype.Service
 
 /** 功能描述
@@ -13,6 +15,14 @@ import org.springframework.stereotype.Service
   * @note 一些值得注意的地方
   */
 @Service
-trait SparkJobService {
-    def runJob(jobVO: JobVO): JobVO
+trait SparkJobService extends PhLogable{
+//    def runJob(jobVO: JobVO): JobVO
+
+    def buildJob(jobVO: JobVO): Job
+
+    def findOperators(packages: Seq[String]): Array[OperatorVO]
+
+    def findPlugins(packages: Seq[String]): Array[PluginVO]
+
+//    def findJobModel()
 }

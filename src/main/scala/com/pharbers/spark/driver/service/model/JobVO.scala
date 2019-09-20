@@ -1,6 +1,9 @@
 package com.pharbers.spark.driver.service.model
 
+import java.util
+
 import scala.beans.BeanProperty
+import scala.collection.JavaConverters._
 
 /** 功能描述
   *
@@ -8,20 +11,19 @@ import scala.beans.BeanProperty
   * @tparam T 构造泛型参数
   * @author dcs
   * @version 0.0
-  * @since 2019/08/01 14:37
+  * @since 2019/09/17 13:33
   * @note 一些值得注意的地方
   */
 class JobVO {
-    def this(id: String, config: JobConfig, status: String){
-        this()
-        this.id = id
-        this.config = config
-        this.status = status
-    }
     @BeanProperty
-    var id = ""
+    var name: String = ""
+
     @BeanProperty
-    var config: JobConfig = _
+    var `type`: String = "job"
+
     @BeanProperty
-    var status: String = ""
+    var args: java.util.Map[String, String] = new util.HashMap()
+
+    @BeanProperty
+    var operators: java.util.Map[String, OperatorVO] = new util.HashMap()
 }

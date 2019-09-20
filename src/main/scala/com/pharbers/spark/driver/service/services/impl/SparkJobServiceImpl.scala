@@ -1,14 +1,10 @@
 package com.pharbers.spark.driver.service.services.impl
 
-import java.util
-import java.util.concurrent.TimeUnit
-
-import com.pharbers.kafka.producer.PharbersKafkaProducer
-import com.pharbers.kafka.schema.SparkJob
-import com.pharbers.spark.driver.service.config.Config
-import com.pharbers.spark.driver.service.model.JobVO
+import com.pharbers.ipaas.data.driver.api.model.Job
+import com.pharbers.ipaas.data.driver.operators.util.OperatorInterpreter
+import com.pharbers.spark.driver.service.data.JobBuilder
+import com.pharbers.spark.driver.service.model.{JobVO, OperatorVO, PluginVO}
 import com.pharbers.spark.driver.service.services.SparkJobService
-import org.apache.kafka.clients.producer.RecordMetadata
 import org.springframework.stereotype.Service
 
 /** 功能描述
@@ -22,15 +18,26 @@ import org.springframework.stereotype.Service
   */
 @Service
 class SparkJobServiceImpl extends SparkJobService{
-    override def runJob(jobVO: JobVO): JobVO = {
-        //todo： 验证参数， 确认driver存在等
-        val pkp = new PharbersKafkaProducer[String, SparkJob]
-        val value = new SparkJob(jobVO.id, jobVO.config.bucketName, jobVO.config.ossKey, jobVO.config.mode, jobVO.config.config.asInstanceOf[util.Map[CharSequence, CharSequence]])
-        val res = pkp.produce(jobVO.config.topic, jobVO.id, value).get(10, TimeUnit.SECONDS)
-        pkp.producer.close()
-        res match {
-            case _: RecordMetadata => new JobVO(jobVO.id, jobVO.config, Config.DriverStatus.CREATING)
-            case _ => throw new Exception("发送kafka失败")
+
+    override def findOperators(packages: Seq[String]): Array[OperatorVO] = {
+        packages.flatMap(x => {
+            val classAnAnnotations = OperatorInterpreter.getOperatorAnnotations(x)
+            classAnAnnotations.map(x => new OperatorVO(x._2, x._1))
+        }).toArray
+    }
+
+    override def findPlugins(packages: Seq[String]): Array[PluginVO] = {
+        packages.flatMap(x => {
+            val classAnAnnotations = OperatorInterpreter.getPluginAnnotations(x)
+            classAnAnnotations.map(x => new PluginVO(x._2, x._1))
+        }).toArray
+    }
+
+    override def buildJob(jobVO: JobVO): Job = {
+        jobVO.`type` match {
+            case "job" => JobBuilder().buildJob(jobVO)
+            case "model" => ???
+            case _ => null
         }
     }
 }

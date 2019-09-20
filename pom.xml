@@ -76,6 +76,11 @@
       <artifactId>log4j-core</artifactId>
       <version>${log4j.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.pharbers</groupId>
+      <artifactId>logs</artifactId>
+      <version>1.0</version>
+    </dependency>
     <!--json-->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -104,6 +109,19 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-mongodb</artifactId>
+    </dependency>
+    <!--driver-->
+    <dependency>
+      <groupId>com.pharbers</groupId>
+      <artifactId>ipaas-data-driver</artifactId>
+      <version>0.1</version>
+    </dependency>
+    <!--test-->
+    <dependency>
+      <groupId>org.scalatest</groupId>
+      <artifactId>scalatest_${scalaBinaryVersion}</artifactId>
+      <version>${scalatest.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

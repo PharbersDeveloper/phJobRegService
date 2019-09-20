@@ -11,7 +11,10 @@ package com.pharbers.spark.driver.service.config
   */
 object Config {
     //todo: 配置化，环境变量
-    val CREATE_SPARK_DRIVER_TOPIC: String = scala.util.Properties.envOrElse("CREATE_SPARK_DRIVER_TOPIC", "DriverRequest")
+//    val CREATE_SPARK_DRIVER_TOPIC: String = scala.util.Properties.envOrElse("CREATE_SPARK_DRIVER_TOPIC", "DriverRequest")
+    val CREATE_SPARK_DRIVER_TOPIC: String = scala.util.Properties.envOrElse("CREATE_SPARK_DRIVER_TOPIC", "DriverRequestTest")
+    val OPERATOR_PACKAGES = Array("com.pharbers.ipaas.data.driver.operators")
+    val PLUGIN_PACKAGES = Array("com.pharbers.ipaas.data.driver.plugins")
     object DriverStatus extends Enumeration{
         type DriverStatus = String
         val RUNNING = "running"
