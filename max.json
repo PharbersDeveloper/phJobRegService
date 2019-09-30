@@ -1,0 +1,3397 @@
+{
+  "jobId": "",
+  "jobType": "",
+  "actions": [
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadCsvOperator",
+          "args": {
+            "path": "*cpa",
+            "delimiter": ","
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "castInt",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "cast(HOSP_ID as int)"
+            }
+          },
+          "name": "hospIdCastInt",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "read",
+            "newColName": "HOSP_ID"
+          }
+        }
+      ],
+      "name": "readCpaFile",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadParquetOperator",
+          "args": {
+            "path": "hdfs:///repository/hosp_dis_max"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "read",
+            "filter": "PHA_IS_REPEAT == 0"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "filter",
+            "keys": "PHA_HOSP_ID"
+          }
+        }
+      ],
+      "name": "readHospitalFile",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadParquetOperator",
+          "args": {
+            "path": "hdfs:///repository/prod_etc_dis_max/5ca069e2eeefcc012918ec73"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "concatMin2",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ConcatStrPlugin",
+            "args": {
+              "columns": "ETC_PRODUCT_NAME#ETC_DOSAGE_NAME#ETC_PACKAGE_DES#ETC_PACKAGE_NUMBER#ETC_CORP_NAME",
+              "dilimiter": ""
+            }
+          },
+          "name": "concant",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "read",
+            "newColName": "min2"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "productSelect",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "concant",
+            "selects": "ETC_PRODUCT_ID as PRODUCT_ID#regexp_replace(min2, \" \", \"\") as min2#MARKET"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "productSelect",
+            "keys": "min2"
+          }
+        }
+      ],
+      "name": "readProductFile",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadParquetOperator",
+          "args": {
+            "path": "hdfs:///repository/pha"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "read",
+            "keys": "CPA"
+          }
+        }
+      ],
+      "name": "readPhaFile",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadCsvOperator",
+          "args": {
+            "path": "*productMatch",
+            "delimiter": ","
+          }
+        },
+        {
+          "plugin": null,
+          "name": "productMatchSelect",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "read",
+            "selects": "regexp_replace(MIN_PRODUCT_UNIT, \" \", \"\") as MIN_PRODUCT_UNIT#regexp_replace(MIN_PRODUCT_UNIT_STANDARD, \" \", \"\") as MIN_PRODUCT_UNIT_STANDARD"
+          }
+        }
+      ],
+      "name": "readProductMatchFile",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "hospitalSelect",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "readHospitalFile",
+            "selects": "HOSPITAL_ID#PHA_HOSP_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "hospitalSelect",
+            "keys": "PHA_HOSP_ID"
+          }
+        }
+      ],
+      "name": "distinctHosp",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "phaSelect",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "readPhaFile",
+            "selects": "CPA#PHA_ID_NEW"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "castInt",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "cast(CPA as int)"
+            }
+          },
+          "name": "hospIdCastInt",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "phaSelect",
+            "newColName": "CPA"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "hospIdCastInt",
+            "keys": "CPA"
+          }
+        }
+      ],
+      "name": "distinctPha",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "joinPha",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "readCpaFile",
+            "joinDFName": "distinctPha",
+            "joinExpr": "HOSP_ID = CPA",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "joinHosp",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "joinPha",
+            "joinDFName": "distinctHosp",
+            "joinExpr": "PHA_ID_NEW = PHA_HOSP_ID",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "fillHospId",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "case when HOSPITAL_ID is not null then HOSPITAL_ID else concat(\"other\", HOSP_ID) end"
+            }
+          },
+          "name": "addHospId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "joinHosp",
+            "newColName": "HOSPITAL_ID"
+          }
+        }
+      ],
+      "name": "cpaMatchHosp",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": {
+            "sub": null,
+            "name": "concatMin1",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ConcatStrPlugin",
+            "args": {
+              "columns": "PRODUCT_NAME#DOSAGE#PACK_DES#PACK_NUMBER#CORP_NAME",
+              "dilimiter": ""
+            }
+          },
+          "name": "concant",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "cpaMatchHosp",
+            "newColName": "min1"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "regexpReplaceMin1",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "regexp_replace(min1, \" \", \"\")"
+            }
+          },
+          "name": "regexpReplaceMin1",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "concant",
+            "newColName": "min1"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "joinProductMatch",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "regexpReplaceMin1",
+            "joinDFName": "readProductMatchFile",
+            "joinExpr": "min1 = MIN_PRODUCT_UNIT",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "joinProduct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "joinProductMatch",
+            "joinDFName": "readProductFile",
+            "joinExpr": "MIN_PRODUCT_UNIT_STANDARD = min2",
+            "joinType": "left"
+          }
+        }
+      ],
+      "name": "cpaMatchProduct",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": {
+            "sub": null,
+            "name": "litCompanyId",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "'5ca069e2eeefcc012918ec73'"
+            }
+          },
+          "name": "litCompanyId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "cpaMatchProduct",
+            "newColName": "COMPANY_ID"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "litSOURCE",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "'cpa'"
+            }
+          },
+          "name": "litSOURCE",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "litCompanyId",
+            "newColName": "SOURCE"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "litProductNameNote",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "''"
+            }
+          },
+          "name": "litProductNameNote",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "litSOURCE",
+            "newColName": "PRODUCT_NAME_NOTE"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "addYM",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.MergeYMPlugin",
+            "args": {
+              "yearColName": "YEAR",
+              "monthColName": "MONTH"
+            }
+          },
+          "name": "addYM",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "litProductNameNote",
+            "newColName": "YM"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Select",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "addYM",
+            "selects": "COMPANY_ID#SOURCE#YM#HOSPITAL_ID#PRODUCT_ID#cast(VALUE as double) as SALES#cast(STANDARD_UNIT as double) as UNITS#PRODUCT_NAME_NOTE#MARKET"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "generateObjectId",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.GenerateObjectIdPlugin",
+            "args": null
+          },
+          "name": "generateObjectId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "Select",
+            "newColName": "_id"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "cacheCleanCpa",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.CacheOperator",
+          "args": {
+            "inDFName": "generateObjectId"
+          }
+        }
+      ],
+      "name": "cleanCpa",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "saveCleanCpa",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SaveParquetOperator",
+          "args": {
+            "inDFName": "cleanCpa",
+            "path": "*cleanCpa"
+          }
+        }
+      ],
+      "name": "saveCleanCpa",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+
+
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadCsvOperator",
+          "args": {
+            "path": "*gycx",
+            "delimiter": ","
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "castInt",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "cast(HOSP_ID as int)"
+            }
+          },
+          "name": "hospIdCastInt",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "read",
+            "newColName": "HOSP_ID"
+          }
+        }
+      ],
+      "name": "readGycxFile",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadParquetOperator",
+          "args": {
+            "path": "hdfs:///repository/hosp_dis_max"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "read",
+            "filter": "PHA_IS_REPEAT == 0"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "filter",
+            "keys": "PHA_HOSP_ID"
+          }
+        }
+      ],
+      "name": "readHospitalFile2",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadParquetOperator",
+          "args": {
+            "path": "hdfs:///repository/prod_etc_dis_max/5ca069e2eeefcc012918ec73"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "concatMin2",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ConcatStrPlugin",
+            "args": {
+              "columns": "ETC_PRODUCT_NAME#ETC_DOSAGE_NAME#ETC_PACKAGE_DES#ETC_PACKAGE_NUMBER#ETC_CORP_NAME",
+              "dilimiter": ""
+            }
+          },
+          "name": "concant",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "read",
+            "newColName": "min2"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "productSelect",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "concant",
+            "selects": "ETC_PRODUCT_ID as PRODUCT_ID#regexp_replace(min2, \" \", \"\") as min2#MARKET"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "productSelect",
+            "keys": "min2"
+          }
+        }
+      ],
+      "name": "readProductFile2",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadParquetOperator",
+          "args": {
+            "path": "hdfs:///repository/pha"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "read",
+            "keys": "GYC"
+          }
+        }
+      ],
+      "name": "readPhaFile2",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadCsvOperator",
+          "args": {
+            "path": "*productMatch",
+            "delimiter": ","
+          }
+        },
+        {
+          "plugin": null,
+          "name": "productMatchSelect",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "read",
+            "selects": "regexp_replace(MIN_PRODUCT_UNIT, \" \", \"\") as MIN_PRODUCT_UNIT#regexp_replace(MIN_PRODUCT_UNIT_STANDARD, \" \", \"\") as MIN_PRODUCT_UNIT_STANDARD"
+          }
+        }
+      ],
+      "name": "readProductMatchFile2",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "hospitalSelect",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "readHospitalFile2",
+            "selects": "HOSPITAL_ID#PHA_HOSP_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "hospitalSelect",
+            "keys": "PHA_HOSP_ID"
+          }
+        }
+      ],
+      "name": "distinctHosp2",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "phaSelect",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "readPhaFile2",
+            "selects": "GYC#PHA_ID_NEW"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "castInt",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "cast(GYC as int)"
+            }
+          },
+          "name": "hospIdCastInt",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "phaSelect",
+            "newColName": "GYC"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "hospIdCastInt",
+            "keys": "GYC"
+          }
+        }
+      ],
+      "name": "distinctPha2",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "joinPha",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "readGycxFile",
+            "joinDFName": "distinctPha2",
+            "joinExpr": "HOSP_ID = GYC",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "joinHosp",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "joinPha",
+            "joinDFName": "distinctHosp2",
+            "joinExpr": "PHA_ID_NEW = PHA_HOSP_ID",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "fillHospId",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "case when HOSPITAL_ID is not null then HOSPITAL_ID else concat(\"other\", HOSP_ID) end"
+            }
+          },
+          "name": "addHospId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "joinHosp",
+            "newColName": "HOSPITAL_ID"
+          }
+        }
+      ],
+      "name": "gycxMatchHosp",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": {
+            "sub": null,
+            "name": "concatMin1",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ConcatStrPlugin",
+            "args": {
+              "columns": "PRODUCT_NAME#DOSAGE#PACK_DES#PACK_NUMBER#CORP_NAME",
+              "dilimiter": ""
+            }
+          },
+          "name": "concant",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "gycxMatchHosp",
+            "newColName": "min1"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "regexpReplaceMin1",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "regexp_replace(min1, \" \", \"\")"
+            }
+          },
+          "name": "regexpReplaceMin1",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "concant",
+            "newColName": "min1"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "joinProductMatch",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "regexpReplaceMin1",
+            "joinDFName": "readProductMatchFile2",
+            "joinExpr": "min1 = MIN_PRODUCT_UNIT",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "joinProduct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "joinProductMatch",
+            "joinDFName": "readProductFile2",
+            "joinExpr": "MIN_PRODUCT_UNIT_STANDARD = min2",
+            "joinType": "left"
+          }
+        }
+      ],
+      "name": "gycxMatchProduct",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": {
+            "sub": null,
+            "name": "litCompanyId",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "'5ca069e2eeefcc012918ec73'"
+            }
+          },
+          "name": "litCompanyId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "gycxMatchProduct",
+            "newColName": "COMPANY_ID"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "litSOURCE",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "'gyc'"
+            }
+          },
+          "name": "litSOURCE",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "litCompanyId",
+            "newColName": "SOURCE"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "litProductNameNote",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "''"
+            }
+          },
+          "name": "litProductNameNote",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "litSOURCE",
+            "newColName": "PRODUCT_NAME_NOTE"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "addYM",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.MergeYMPlugin",
+            "args": {
+              "yearColName": "YEAR",
+              "monthColName": "MONTH"
+            }
+          },
+          "name": "addYM",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "litProductNameNote",
+            "newColName": "YM"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Select",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "addYM",
+            "selects": "COMPANY_ID#SOURCE#YM#HOSPITAL_ID#PRODUCT_ID#cast(VALUE as double) as SALES#cast(STANDARD_UNIT as double) as UNITS#PRODUCT_NAME_NOTE#MARKET"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "generateObjectId",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.GenerateObjectIdPlugin",
+            "args": null
+          },
+          "name": "generateObjectId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "Select",
+            "newColName": "_id"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "cacheCleanCpa",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.CacheOperator",
+          "args": {
+            "inDFName": "generateObjectId"
+          }
+        }
+      ],
+      "name": "cleanGycx",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "saveCleanGycx",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SaveParquetOperator",
+          "args": {
+            "inDFName": "cleanGycx",
+            "path": "*cleanGycx"
+          }
+        }
+      ],
+      "name": "saveCleanGycx",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadCsvOperator",
+          "args": {
+            "path": "*fullHosp"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "castInt",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "cast(HOSP_ID as int)"
+            }
+          },
+          "name": "hospIdCastInt",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "read",
+            "newColName": "HOSP_ID"
+          }
+        }
+      ],
+      "name": "readFullFile",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadParquetOperator",
+          "args": {
+            "path": "hdfs:///repository/hosp_dis_max"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "read",
+            "filter": "PHA_IS_REPEAT == 0"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "filter",
+            "keys": "PHA_HOSP_ID"
+          }
+        }
+      ],
+      "name": "readHospitalFile3",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadParquetOperator",
+          "args": {
+            "path": "hdfs:///repository/prod_etc_dis_max/5ca069e2eeefcc012918ec73"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "concatMin2",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ConcatStrPlugin",
+            "args": {
+              "columns": "ETC_PRODUCT_NAME#ETC_DOSAGE_NAME#ETC_PACKAGE_DES#ETC_PACKAGE_NUMBER#ETC_CORP_NAME",
+              "dilimiter": ""
+            }
+          },
+          "name": "concant",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "read",
+            "newColName": "min2"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "productSelect",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "concant",
+            "selects": "ETC_PRODUCT_ID as PRODUCT_ID#regexp_replace(min2, \" \", \"\") as min2#MARKET"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "productSelect",
+            "keys": "min2"
+          }
+        }
+      ],
+      "name": "readProductFile3",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadParquetOperator",
+          "args": {
+            "path": "hdfs:///repository/pha"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "read",
+            "keys": "CPA"
+          }
+        }
+      ],
+      "name": "readPhaFile3",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadCsvOperator",
+          "args": {
+            "path": "*productMatch",
+            "delimiter": ","
+          }
+        },
+        {
+          "plugin": null,
+          "name": "productMatchSelect",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "read",
+            "selects": "regexp_replace(MIN_PRODUCT_UNIT, \" \", \"\") as MIN_PRODUCT_UNIT#regexp_replace(MIN_PRODUCT_UNIT_STANDARD, \" \", \"\") as MIN_PRODUCT_UNIT_STANDARD"
+          }
+        }
+      ],
+      "name": "readProductMatchFile3",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "hospitalSelect",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "readHospitalFile3",
+            "selects": "HOSPITAL_ID#PHA_HOSP_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "hospitalSelect",
+            "keys": "PHA_HOSP_ID"
+          }
+        }
+      ],
+      "name": "distinctHosp3",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "phaSelect",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "readPhaFile3",
+            "selects": "CPA#PHA_ID_NEW"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "castInt",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "cast(CPA as int)"
+            }
+          },
+          "name": "hospIdCastInt",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "phaSelect",
+            "newColName": "CPA"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "hospIdCastInt",
+            "keys": "CPA"
+          }
+        }
+      ],
+      "name": "distinctPha3",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "joinPha",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "readCpaFile",
+            "joinDFName": "distinctPha3",
+            "joinExpr": "HOSP_ID = CPA",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "joinHosp",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "joinPha",
+            "joinDFName": "distinctHosp3",
+            "joinExpr": "PHA_ID_NEW = PHA_HOSP_ID",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "fillHospId",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "case when HOSPITAL_ID is not null then HOSPITAL_ID else concat(\"other\", HOSP_ID) end"
+            }
+          },
+          "name": "addHospId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "joinHosp",
+            "newColName": "HOSPITAL_ID"
+          }
+        }
+      ],
+      "name": "fullMatchHosp",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": {
+            "sub": null,
+            "name": "concatMin1",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ConcatStrPlugin",
+            "args": {
+              "columns": "PRODUCT_NAME#DOSAGE#PACK_DES#PACK_NUMBER#CORP_NAME",
+              "dilimiter": ""
+            }
+          },
+          "name": "concant",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "fullMatchHosp",
+            "newColName": "min1"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "regexpReplaceMin1",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "regexp_replace(min1, \" \", \"\")"
+            }
+          },
+          "name": "regexpReplaceMin1",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "concant",
+            "newColName": "min1"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "joinProductMatch",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "regexpReplaceMin1",
+            "joinDFName": "readProductMatchFile3",
+            "joinExpr": "min1 = MIN_PRODUCT_UNIT",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "joinProduct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "joinProductMatch",
+            "joinDFName": "readProductFile3",
+            "joinExpr": "MIN_PRODUCT_UNIT_STANDARD = min2",
+            "joinType": "left"
+          }
+        }
+      ],
+      "name": "fullMatchProduct",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": {
+            "sub": null,
+            "name": "litCompanyId",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "'5ca069e2eeefcc012918ec73'"
+            }
+          },
+          "name": "litCompanyId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "fullMatchProduct",
+            "newColName": "COMPANY_ID"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "litSOURCE",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "'cpa'"
+            }
+          },
+          "name": "litSOURCE",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "litCompanyId",
+            "newColName": "SOURCE"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "litProductNameNote",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "''"
+            }
+          },
+          "name": "litProductNameNote",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "litSOURCE",
+            "newColName": "PRODUCT_NAME_NOTE"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "addYM",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.MergeYMPlugin",
+            "args": {
+              "yearColName": "YEAR",
+              "monthColName": "MONTH"
+            }
+          },
+          "name": "addYM",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "litProductNameNote",
+            "newColName": "YM"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Select",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "addYM",
+            "selects": "COMPANY_ID#SOURCE#YM#HOSPITAL_ID#PRODUCT_ID#cast(VALUE as double) as SALES#cast(STANDARD_UNIT as double) as UNITS#PRODUCT_NAME_NOTE#MARKET"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "generateObjectId",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.GenerateObjectIdPlugin",
+            "args": null
+          },
+          "name": "generateObjectId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "Select",
+            "newColName": "_id"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "generateObjectId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.CacheOperator",
+          "args": {
+            "inDFName": "generateObjectId"
+          }
+        }
+      ],
+      "name": "cleanFullHosp",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadCsvOperator",
+          "args": {
+            "path": "*missHospPath",
+            "delimiter": ","
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "Split",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExplodePlugin",
+            "args": {
+              "splitColName": "MONTH",
+              "delimiter": "、"
+            }
+          },
+          "name": "add month",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "read",
+            "newColName": "MONTH"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "addYM",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "*year"
+            }
+          },
+          "name": "add year",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "add month",
+            "newColName": "YEAR"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "addYM",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.MergeYMPlugin",
+            "args": {
+              "yearColName": "YEAR",
+              "monthColName": "MONTH"
+            }
+          },
+          "name": "add date",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "add year",
+            "newColName": "DATE"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "add date",
+            "drops": "MONTH#YEAR"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "join cpa",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "drop",
+            "joinDFName": "readPhaFile",
+            "joinExpr": "HOSP_ID == CPA",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "join hosp",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "join cpa",
+            "joinDFName": "readHospitalFile",
+            "joinExpr": "PHA_ID_NEW == PHA_HOSP_ID",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "fillHospId",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "case when HOSPITAL_ID is not null then HOSPITAL_ID else concat(\"other\", HOSP_ID) end"
+            }
+          },
+          "name": "addHospId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "join hosp",
+            "newColName": "HOSPITAL_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "select",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "addHospId",
+            "selects": "DATE#HOSPITAL_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctOperator",
+          "args": {
+            "inDFName": "select"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "_id",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.GenerateObjectIdPlugin",
+            "args": null
+          },
+          "name": "addId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "distinct",
+            "newColName": "_id"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "cache",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.CacheOperator",
+          "args": {
+            "inDFName": "addId"
+          }
+        }
+      ],
+      "name": "cleanMissHosp",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadCsvOperator",
+          "args": {
+            "path": "*sampleHosp",
+            "delimiter": ","
+          }
+        },
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "read",
+            "filter": "HOSP_ID IS NOT NULL AND IF_PANEL_ALL != 0"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "rename",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "filter",
+            "oldColName": "PHA_HOSP_ID",
+            "newColName": "PHA_HOSP_ID_S"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "join pha",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "rename",
+            "joinDFName": "readPhaFile",
+            "joinExpr": "HOSP_ID == CPA",
+            "joinType": "inner"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "join hosp",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "join pha",
+            "joinDFName": "readHospitalFile",
+            "joinExpr": "PHA_HOSP_ID_S == PHA_HOSP_ID",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "fillHospId",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "case when HOSPITAL_ID is not null then HOSPITAL_ID else concat(\"other\", HOSP_ID) end"
+            }
+          },
+          "name": "addHospId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "join hosp",
+            "newColName": "HOSPITAL_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "select",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "addHospId",
+            "selects": "HOSPITAL_ID#PHA_HOSP_NAME#MARKET#IF_PANEL_ALL as SAMPLE"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "distinct by ket",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "select",
+            "keys": "HOSPITAL_ID#SAMPLE",
+            "chooseBy": "HOSPITAL_ID",
+            "chooseFun": "min"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "fillid",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.GenerateObjectIdPlugin",
+            "args": null
+          },
+          "name": "addId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "distinct by ket",
+            "newColName": "_id"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "cache",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.CacheOperator",
+          "args": {
+            "inDFName": "addId"
+          }
+        }
+      ],
+      "name": "cpaSampleHosp",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadParquetOperator",
+          "args": {
+            "path": "hdfs:///repository/pha"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "DistinctByKeyOperator",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "read",
+            "keys": "GYC"
+          }
+        }
+      ],
+      "name": "readPhaFileGycx",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadCsvOperator",
+          "args": {
+            "path": "*sampleHosp",
+            "delimiter": ","
+          }
+        },
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "read",
+            "filter": "HOSP_ID IS NOT NULL AND IF_PANEL_ALL != 0"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "rename",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "filter",
+            "oldColName": "PHA_HOSP_ID",
+            "newColName": "PHA_HOSP_ID_S"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "join pha",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "rename",
+            "joinDFName": "readPhaFileGycx",
+            "joinExpr": "HOSP_ID == GYC",
+            "joinType": "inner"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "join hosp",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "join pha",
+            "joinDFName": "readHospitalFile",
+            "joinExpr": "PHA_HOSP_ID_S == PHA_HOSP_ID",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "fillHospId",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "case when HOSPITAL_ID is not null then HOSPITAL_ID else concat(\"other\", HOSP_ID) end"
+            }
+          },
+          "name": "addHospId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "join hosp",
+            "newColName": "HOSPITAL_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "select",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "addHospId",
+            "selects": "HOSPITAL_ID#PHA_HOSP_NAME#MARKET#IF_PANEL_ALL as SAMPLE"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "distinct by ket",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "select",
+            "keys": "HOSPITAL_ID#SAMPLE",
+            "chooseBy": "HOSPITAL_ID",
+            "chooseFun": "min"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "fillid",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.GenerateObjectIdPlugin",
+            "args": null
+          },
+          "name": "addId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "distinct by ket",
+            "newColName": "_id"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "cache",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.CacheOperator",
+          "args": {
+            "inDFName": "addId"
+          }
+        }
+      ],
+      "name": "gycxSampleHosp",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "cleanCpa",
+            "filter": "YM == '#ym#'",
+            "ym": "*ym"
+          }
+        }
+      ],
+      "name": "readCpa",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "cleanFullHosp",
+            "filter": "YM == '#ym#'",
+            "ym": "*ym"
+          }
+        }
+      ],
+      "name": "readFullHosp",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "cpaSampleHosp",
+            "filter": "SAMPLE == 1"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "rename",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "filter",
+            "oldColName": "HOSPITAL_ID",
+            "newColName": "SAMPLE_HOSPITAL_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "rename market",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "rename",
+            "oldColName": "MARKET",
+            "newColName": "MARKET_P"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop sampleHosp",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "rename market",
+            "drops": "_id"
+          }
+        }
+      ],
+      "name": "readCpaSampleHosp",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "gycxSampleHosp",
+            "filter": "SAMPLE == 1"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "rename",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "filter",
+            "oldColName": "HOSPITAL_ID",
+            "newColName": "SAMPLE_HOSPITAL_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "rename market",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "rename",
+            "oldColName": "MARKET",
+            "newColName": "MARKET_P"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop sampleHosp",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "rename market",
+            "drops": "_id"
+          }
+        }
+      ],
+      "name": "readGycxSampleHosp",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "cleanGycx",
+            "filter": "YM == '#ym#'",
+            "ym": "*ym"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "join sampleGycxHosp",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "filter",
+            "joinDFName": "readGycxSampleHosp",
+            "joinExpr": "SAMPLE_HOSPITAL_ID == HOSPITAL_ID and MARKET == MARKET_P",
+            "joinType": "inner"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "join sampleGycxHosp",
+            "drops": "SAMPLE_HOSPITAL_ID"
+          }
+        }
+      ],
+      "name": "readGycx",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "cleanMissHosp",
+            "filter": "DATE == '#date#'",
+            "date": "*date"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop Date",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "filter",
+            "drops": "DATE"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "drop Date",
+            "drops": "_id"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "distinct",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctOperator",
+          "args": {
+            "inDFName": "drop",
+            "": ""
+          }
+        },
+        {
+          "plugin": null,
+          "name": "rename",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "distinct",
+            "oldColName": "HOSPITAL_ID",
+            "newColName": "MISS_HOSPITAL_ID"
+          }
+        }
+      ],
+      "name": "missHosp",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "df": "cleanMissHosp"
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "readCpa",
+            "filter": "YM == '#ym#'",
+            "ym": "*ym"
+          }
+        }
+      ],
+      "name": "primalCpa",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "df": "readCpa"
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "join",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "primalCpa",
+            "joinDFName": "missHosp",
+            "joinExpr": "MISS_HOSPITAL_ID == HOSPITAL_ID",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "join",
+            "filter": "MISS_HOSPITAL_ID IS NULL"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "filter",
+            "drops": "MISS_HOSPITAL_ID"
+          }
+        }
+      ],
+      "name": "reducedCpa",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "df": "primalCpa"
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "readFullHosp",
+            "filter": "YM == '#ym#'",
+            "ym": "*ym"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "join",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "filter",
+            "joinDFName": "missHosp",
+            "joinExpr": "MISS_HOSPITAL_ID == HOSPITAL_ID",
+            "joinType": "inner"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "join",
+            "drops": "MISS_HOSPITAL_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "union",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.UnionOperator",
+          "args": {
+            "inDFName": "drop",
+            "unionDFName": "reducedCpa"
+          }
+        }
+      ],
+      "name": "cpa",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "df": "readFullHosp"
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "join sampleHosp",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "cpa",
+            "joinDFName": "readCpaSampleHosp",
+            "joinExpr": "SAMPLE_HOSPITAL_ID == HOSPITAL_ID and MARKET == MARKET_P",
+            "joinType": "inner"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "join sampleHosp",
+            "drops": "SAMPLE_HOSPITAL_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "union gycx",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.UnionOperator",
+          "args": {
+            "inDFName": "drop",
+            "unionDFName": "readGycx"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "concat",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ConcatStrPlugin",
+            "args": {
+              "columns": "COMPANY_ID#YM#HOSPITAL_ID#PRODUCT_ID",
+              "dilimiter": "#"
+            }
+          },
+          "name": "concant",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "union gycx",
+            "newColName": "GROUP"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "group panel",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.GroupOperator",
+          "args": {
+            "inDFName": "concant",
+            "groups": "GROUP",
+            "aggExprs": "sum(UNITS) as UNITS#sum(SALES) as SALES#first(COMPANY_ID) as COMPANY_ID#first(YM) as YM#first(HOSPITAL_ID) as HOSPITAL_ID#first(PRODUCT_ID) as PRODUCT_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "group panel",
+            "drops": "GROUP"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "cachePanel",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.CacheOperator",
+          "args": {
+            "inDFName": "drop"
+          }
+        }
+      ],
+      "name": "panelERD",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "saveCleanCpa",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SaveParquetOperator",
+          "args": {
+            "inDFName": "panelERD",
+            "path": "*panel"
+          }
+        }
+      ],
+      "name": "savePanel",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "": ""
+      }
+    },
+
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "readParquet",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadParquetOperator",
+          "args": {
+            "path": "hdfs:///repository/pha"
+          }
+        }
+      ],
+      "name": "phaDF",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": null
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "readParquet",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadParquetOperator",
+          "args": {
+            "path": "hdfs:///repository/hosp_dis_max"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "readParquet",
+            "filter": "PHA_IS_REPEAT == 0"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "select",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "filter",
+            "selects": "HOSPITAL_ID#PHA_HOSP_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "HOSPITAL_ID",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "select",
+            "keys": "PHA_HOSP_ID"
+          }
+        }
+      ],
+      "name": "hospDIS",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": null
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "read universe csv file",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ReadCsvOperator",
+          "args": {
+            "path": "*universe",
+            "delimiter": ","
+          }
+        },
+        {
+          "plugin": null,
+          "name": "rename PHA_HOSP_ID to PHA_ID_OLD",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "read universe csv file",
+            "oldColName": "PHA_HOSP_ID",
+            "newColName": "PHA_ID_OLD"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "Join pha",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "rename PHA_HOSP_ID to PHA_ID_OLD",
+            "joinDFName": "phaDF",
+            "joinExpr": "PHA_ID_OLD == PHA_ID",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "join hosp",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "Join pha",
+            "joinDFName": "hospDIS",
+            "joinExpr": "PHA_ID_NEW == PHA_HOSP_ID",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "BaseCalcPlugin",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "case when HOSPITAL_ID IS NULL THEN concat('other', PHA_ID) else HOSPITAL_ID end"
+            }
+          },
+          "name": "fill HOSPITAL_ID",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "join hosp",
+            "newColName": "HOSPITAL_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "HOSPITAL_ID",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "fill HOSPITAL_ID",
+            "keys": "HOSPITAL_ID",
+            "chooseBy": "IF_PANEL_TO_USE",
+            "chooseFun": "max"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "add generateObjectId",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.GenerateObjectIdPlugin",
+            "args": null
+          },
+          "name": "generateObjectId",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "HOSPITAL_ID",
+            "newColName": "_id"
+          }
+        }
+      ],
+      "name": "universeClean",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": null
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "withColumnRenamed",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "universeClean",
+            "oldColName": "IF_PANEL_ALL",
+            "newColName": "IS_PANEL_HOSP"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "withColumnRenamed",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "withColumnRenamed",
+            "oldColName": "IF_PANEL_TO_USE",
+            "newColName": "NEED_MAX_HOSP"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "cache",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.CacheOperator",
+          "args": {
+            "inDFName": "withColumnRenamed"
+          }
+        }
+      ],
+      "name": "cleanUniverse",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "df": "universeClean"
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": {
+            "sub": null,
+            "name": "concat",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ConcatStrPlugin",
+            "args": {
+              "columns": "YM#HOSPITAL_ID#PRODUCT_ID",
+              "dilimiter": "+"
+            }
+          },
+          "name": "concant",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "panelERD",
+            "newColName": "GROUP"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "group",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.GroupOperator",
+          "args": {
+            "inDFName": "concant",
+            "groups": "GROUP",
+            "aggExprs": "sum(UNITS) as sumUnits#sum(SALES) as sumSales#first(YM) as P_YM#first(HOSPITAL_ID) as P_HOSPITAL_ID#first(PRODUCT_ID) as P_PRODUCT_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "group",
+            "drops": "GROUP"
+          }
+        }
+      ],
+      "name": "panelSummed",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": null
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "select",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "panelSummed",
+            "selects": "P_YM as YM#P_PRODUCT_ID as PRODUCT_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "distinctByKey",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DistinctByKeyOperator",
+          "args": {
+            "inDFName": "select",
+            "keys": "YM#PRODUCT_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "JoinOperator",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "distinctByKey",
+            "joinDFName": "cleanUniverse",
+            "joinExpr": "TRUE",
+            "joinType": "cross"
+          }
+        }
+      ],
+      "name": "joinDataWithEmptyValue",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "df": "panelSummed"
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "JoinOperator",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "joinDataWithEmptyValue",
+            "joinDFName": "panelSummed",
+            "joinExpr": "HOSPITAL_ID == P_HOSPITAL_ID AND YM == P_YM AND PRODUCT_ID == P_PRODUCT_ID",
+            "joinType": "left"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "FillColumnPlugin",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "case when sumSales IS NULL then 0.0 else sumSales end"
+            }
+          },
+          "name": "fillNull",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "JoinOperator",
+            "newColName": "j_sumSales"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "FillColumnPlugin",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "case when sumUnits IS NULL then 0.0 else sumUnits end"
+            }
+          },
+          "name": "fillNull",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "fillNull",
+            "newColName": "j_sumUnits"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop sumSales",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "fillNull",
+            "drops": "sumSales"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop sumUnits",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "drop sumSales",
+            "drops": "sumUnits"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "withColumnRenamed",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "drop sumUnits",
+            "oldColName": "j_sumSales",
+            "newColName": "sumSales"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "withColumnRenamed",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "withColumnRenamed",
+            "oldColName": "j_sumUnits",
+            "newColName": "sumUnits"
+          }
+        }
+      ],
+      "name": "joinData",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "df": "joinDataWithEmptyValue"
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "ExprFilterOperator",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "joinData",
+            "filter": "NEED_MAX_HOSP == 1"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "concat",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ConcatStrPlugin",
+            "args": {
+              "columns": "SEGMENT#PRODUCT_ID#YM",
+              "dilimiter": "+"
+            }
+          },
+          "name": "concant",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "ExprFilterOperator",
+            "newColName": "GROUP"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "group",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.GroupOperator",
+          "args": {
+            "inDFName": "concant",
+            "groups": "GROUP",
+            "aggExprs": "sum(sumSales) as s_sumSales#sum(sumUnits) as s_sumUnits#sum(WEST_MEDICINE_INCOME) as s_westMedicineIncome#first(SEGMENT) as SEGMENT#first(PRODUCT_ID) as PRODUCT_ID#first(YM) as YM"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "group",
+            "drops": "GROUP"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "withColumnRenamed",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "drop",
+            "oldColName": "SEGMENT",
+            "newColName": "s_SEGMENT"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "withColumnRenamed",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "withColumnRenamed",
+            "oldColName": "PRODUCT_ID",
+            "newColName": "s_PRODUCT_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "withColumnRenamed",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "withColumnRenamed",
+            "oldColName": "YM",
+            "newColName": "s_YM"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "BaseCalcPlugin",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "s_sumSales / s_westMedicineIncome"
+            }
+          },
+          "name": "avgSales",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "withColumnRenamed",
+            "newColName": "avg_Sales"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "BaseCalcPlugin",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "s_sumUnits / s_westMedicineIncome"
+            }
+          },
+          "name": "avg_Units",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "avgSales",
+            "newColName": "avg_Units"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "avg_Units",
+            "drops": "s_sumSales#s_sumUnits#s_westMedicineIncome"
+          }
+        }
+      ],
+      "name": "segmentDF",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "df": "joinData"
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "join",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "joinData",
+            "joinDFName": "segmentDF",
+            "joinExpr": "SEGMENT == s_SEGMENT AND PRODUCT_ID == s_PRODUCT_ID AND YM == s_YM",
+            "joinType": "inner"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "dropCol",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "join",
+            "drops": "s_SEGMENT#s_PRODUCT_ID#s_YM"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "BaseCalcPlugin",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "Factor as Double"
+            }
+          },
+          "name": "cast String to Int",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "dropCol",
+            "newColName": "Factor"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "filter factor",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "cast String to Int",
+            "filter": "Factor > 0.0"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "BaseCalcPlugin",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "case when IS_PANEL_HOSP == 1 then sumSales when avg_Sales <= 0.0 or avg_Units  <= 0.0 then 0.0 else WEST_MEDICINE_INCOME * Factor * avg_Sales  end"
+            }
+          },
+          "name": "addCol f_sales",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "filter factor",
+            "newColName": "f_sales"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "BaseCalcPlugin",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "f_sales as Double"
+            }
+          },
+          "name": "cast String to Double",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "addCol f_sales",
+            "newColName": "f_sales"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "BaseCalcPlugin",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "case when IS_PANEL_HOSP == 1 then sumUnits when avg_Sales <= 0.0 or avg_Units  <= 0.0 then 0.0 else WEST_MEDICINE_INCOME * avg_Units * Factor end"
+            }
+          },
+          "name": "addCol f_units",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "cast String to Double",
+            "newColName": "f_units"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "BaseCalcPlugin",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "f_units as Double"
+            }
+          },
+          "name": "cast String to Double",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "addCol f_units",
+            "newColName": "f_units"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop s_sumSales",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "cast String to Double",
+            "drops": "s_sumSales"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop s_sumUnits",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "drop s_sumSales",
+            "drops": "s_sumUnits"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "drop s_westMedicineIncome",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.DropOperator",
+          "args": {
+            "inDFName": "drop s_sumUnits",
+            "drops": "s_westMedicineIncome"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "filter",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.ExprFilterOperator",
+          "args": {
+            "inDFName": "drop s_westMedicineIncome",
+            "filter": "IS_PANEL_HOSP == 0 AND (f_units != 0.0 AND f_sales != 0.0)"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "BaseCalcPlugin",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "YM as Int"
+            }
+          },
+          "name": "cast String to Int",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "filter",
+            "newColName": "Date"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "select",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "cast String to Int",
+            "selects": "Date#HOSPITAL_ID#PRODUCT_ID#f_units#f_sales"
+          }
+        }
+      ],
+      "name": "enlargedDF",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "df": "joinData"
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "WithColumnRenamedOperator",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "panelSummed",
+            "oldColName": "HOSPITAL_ID",
+            "newColName": "P_HOSPITAL_ID"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "join",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.JoinOperator",
+          "args": {
+            "inDFName": "WithColumnRenamedOperator",
+            "joinDFName": "cleanUniverse",
+            "joinExpr": "P_HOSPITAL_ID == HOSPITAL_ID",
+            "joinType": "inner"
+          }
+        },
+        {
+          "plugin": {
+            "sub": null,
+            "name": "BaseCalcPlugin",
+            "factory": "com.pharbers.ipaas.data.driver.api.factory.PhPluginFactory",
+            "reference": "com.pharbers.ipaas.data.driver.plugins.ExprPlugin",
+            "args": {
+              "exprString": "P_YM as Int"
+            }
+          },
+          "name": "addColumn",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.AddColumnOperator",
+          "args": {
+            "inDFName": "join",
+            "newColName": "Date"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "WithColumnRenamedOperator",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "addColumn",
+            "oldColName": "Sales",
+            "newColName": "f_sales"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "WithColumnRenamedOperator",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.WithColumnRenamedOperator",
+          "args": {
+            "inDFName": "addColumn",
+            "oldColName": "Units",
+            "newColName": "f_units"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "select",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SelectOperator",
+          "args": {
+            "inDFName": "WithColumnRenamedOperator",
+            "selects": "Date#P_HOSPITAL_ID as HOSPITAL_ID#P_PRODUCT_ID as PRODUCT_ID#sumUnits as f_units#sumSales as f_sales"
+          }
+        }
+      ],
+      "name": "backfillDF",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "df": "panelSummed"
+      }
+    },
+    {
+      "opers": [
+        {
+          "plugin": null,
+          "name": "union",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.UnionOperator",
+          "args": {
+            "inDFName": "backfillDF",
+            "unionDFName": "enlargedDF"
+          }
+        },
+        {
+          "plugin": null,
+          "name": "saveCleanCpa",
+          "factory": "com.pharbers.ipaas.data.driver.api.factory.PhOperatorFactory",
+          "reference": "com.pharbers.ipaas.data.driver.operators.SaveParquetOperator",
+          "args": {
+            "inDFName": "union",
+            "path": "*max"
+          }
+        }
+      ],
+      "name": "maxResultDF",
+      "factory": "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory",
+      "reference": "com.pharbers.ipaas.data.driver.api.job.PhBaseAction",
+      "args": {
+        "df": "backfillDF"
+      }
+    }
+  ],
+  "name": "pfizer_max",
+  "factory": "com.pharbers.ipaas.data.driver.api.factory.PhJobFactory",
+  "reference": "com.pharbers.ipaas.data.driver.api.job.PhProgressJob",
+  "args": {
+    "companyId": "5ca069bceeefcc012918ec72",
+    "cpa": "hdfs:///data/pfizer/pha_config_repository1804/Pfizer_201804_CPA.csv",
+    "gycx": "hdfs:///data/pfizer/pha_config_repository1804/Pfizer_201804_Gycx.csv",
+    "productMatch": "hdfs:///data/pfizer/pha_config_repository1901/Pfizer_ProductMatchTable_20190403.csv",
+    "mkt": "INF",
+    "ym": "201804",
+    "year": "2018",
+    "date": "201804",
+    "missHospPath": "hdfs:///data/pfizer/pha_config_repository1804/missingHospital.csv",
+    "fullHosp": "hdfs:///data/pfizer/pha_config_repository1804/Pfizer_2018_FullHosp.txt",
+    "sampleHosp": "hdfs:///data/pfizer/pha_config_repository1804/Pfizer_2018_If_panel_all_INF.csv",
+    "universe": "hdfs:///data/pfizer/pha_config_repository1804/Pfizer_Universe_INF.csv",
+    "topic": "",
+    "jobId": "",
+    "cleanCpa": "",
+    "cleanGycx": "",
+    "panel": "",
+    "max": ""
+  }
+}

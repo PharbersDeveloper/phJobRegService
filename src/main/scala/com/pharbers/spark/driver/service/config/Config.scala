@@ -15,6 +15,10 @@ object Config {
     val CREATE_SPARK_DRIVER_TOPIC: String = scala.util.Properties.envOrElse("CREATE_SPARK_DRIVER_TOPIC", "DriverRequestTest")
     val OPERATOR_PACKAGES = Array("com.pharbers.ipaas.data.driver.operators")
     val PLUGIN_PACKAGES = Array("com.pharbers.ipaas.data.driver.plugins")
+    val JOB_FACTORY = "com.pharbers.ipaas.data.driver.api.factory.PhJobFactory"
+    val JOB_CLASS_PATH = "com.pharbers.ipaas.data.driver.api.job.PhBaseJob"
+    val ACTION_FACTORY = "com.pharbers.ipaas.data.driver.api.factory.PhActionFactory"
+    val ACTION_CLASS_PATH = "com.pharbers.ipaas.data.driver.api.job.PhBaseAction"
     object DriverStatus extends Enumeration{
         type DriverStatus = String
         val RUNNING = "running"

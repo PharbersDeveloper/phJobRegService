@@ -2,6 +2,7 @@ package com.pharbers.spark.driver.service.data
 
 import com.pharbers.ipaas.data.driver.api.model
 import com.pharbers.ipaas.data.driver.api.model.{Action, Job}
+import com.pharbers.spark.driver.service.config.Config
 import com.pharbers.spark.driver.service.model.{JobVO, OperatorVO, PluginVO}
 import com.pharbers.util.log.PhLogable
 
@@ -22,10 +23,14 @@ case class JobBuilder() extends PhLogable{
         val job = new Job
         job.name = jobVO.name
         job.args = jobVO.args
+        job.factory = Config.JOB_FACTORY
+        job.reference = Config.JOB_CLASS_PATH
         job.actions = topological(jobVO.operators.asScala).map(x => {
             val action = new Action
             action.name = x._1
             action.opers = List(buildOperator(x._2, x._1 + "_operator", jobVO.args.asScala.toMap)).asJava
+            action.factory = Config.ACTION_FACTORY
+            action.reference = Config.ACTION_CLASS_PATH
             action
         }).asJava
         job
@@ -90,7 +95,7 @@ case class JobBuilder() extends PhLogable{
     }
 
     private def setArgs(arg: (String, String), jobArgs: Map[String, String]): (String, String) ={
-        if (arg._2.startsWith("*")){
+        if (arg._2 != null && arg._2.startsWith("*")){
             (arg._1, jobArgs.getOrElse(arg._2.replace("*", ""), throw new Exception(s"no find ${arg._2} in job args")))
         } else {
             arg

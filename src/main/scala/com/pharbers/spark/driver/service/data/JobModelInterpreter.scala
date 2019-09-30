@@ -3,6 +3,7 @@ package com.pharbers.spark.driver.service.data
 import com.pharbers.ipaas.data.driver.api.Annotation.{Operator, Plugin}
 import com.pharbers.ipaas.data.driver.api.model.Job
 import com.pharbers.spark.driver.service.model.{JobVO, OperatorVO, PluginVO}
+import com.pharbers.util.log.PhLogable
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -16,7 +17,7 @@ import scala.collection.mutable
   * @since 2019/09/18 10:41
   * @note 一些值得注意的地方
   */
-object JobModelInterpreter {
+object JobModelInterpreter extends PhLogable{
     def interpretModel(jobVO: JobVO): Unit = {
 
     }
@@ -57,5 +58,19 @@ object JobModelInterpreter {
             }
         }).toMap.asJava)
         jobVO
+    }
+
+    def checkIpassJob(ipassJob: Job, operators: Array[OperatorVO]): Boolean = {
+        val actions = ipassJob.actions.asScala
+        val isActionNameRepeat = actions.groupBy(x => x.name).exists(x => x._2.length > 1)
+        val isOperatorNotExit = actions.flatMap(x => x.opers.asScala.map(x => {
+            Class.forName(x.reference).getAnnotation(classOf[Operator]) == null
+        })).exists(x => x)
+        val isArgsNotFind = actions.flatMap(x =>
+            x.opers.asScala.filter(oper => !oper.args.isEmpty)
+                    .flatMap(oper => oper.args.keySet().asScala.filter(k => k.startsWith("*")).map(k => ipassJob.args.containsKey(k)))
+        ).exists(x => !x)
+        logger.info(s"isActionNameRepeat: $isActionNameRepeat, isOperatorNotExit: $isOperatorNotExit, isOperatorNotExit: $isOperatorNotExit")
+        !(isActionNameRepeat || isOperatorNotExit || isArgsNotFind)
     }
 }
